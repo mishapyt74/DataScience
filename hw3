@@ -1,0 +1,111 @@
+{
+  "nbformat": 4,
+  "nbformat_minor": 0,
+  "metadata": {
+    "colab": {
+      "provenance": [],
+      "authorship_tag": "ABX9TyMqfxHvgq4APC5kWIuMXSu8",
+      "include_colab_link": true
+    },
+    "kernelspec": {
+      "name": "python3",
+      "display_name": "Python 3"
+    },
+    "language_info": {
+      "name": "python"
+    }
+  },
+  "cells": [
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "view-in-github",
+        "colab_type": "text"
+      },
+      "source": [
+        "<a href=\"https://colab.research.google.com/github/mishapyt74/DataScience/blob/main/hw3\" target=\"_parent\"><img src=\"https://colab.research.google.com/assets/colab-badge.svg\" alt=\"Open In Colab\"/></a>"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "import numpy as np\n",
+        "import pandas as pd\n",
+        "from sklearn.model_selection import train_test_split\n",
+        "\n",
+        "def normalize(X):\n",
+        "    mu = np.mean(X, axis=0)\n",
+        "    sigma = np.std(X, axis=0)\n",
+        "    X_norm = (X - mu) / sigma\n",
+        "    return X_norm, mu, sigma\n",
+        "\n",
+        "def hypothesis(X, w):\n",
+        "    return np.dot(X, w)\n",
+        "\n",
+        "def compute_cost(X, y, w):\n",
+        "    m = len(y)\n",
+        "    h = hypothesis(X, w)\n",
+        "    J = np.mean((h - y) ** 2) / 2\n",
+        "    return J\n",
+        "\n",
+        "def gradient_descent_step(X, y, w, alpha):\n",
+        "    m = len(y)\n",
+        "    h = hypothesis(X, w)\n",
+        "    gradient = (1 / m) * X.T @ (h - y)\n",
+        "    w -= alpha * gradient\n",
+        "    return w\n",
+        "\n",
+        "def gradient_descent(X, y, w, alpha, num_iterations):\n",
+        "    for _ in range(num_iterations):\n",
+        "        w = gradient_descent_step(X, y, w, alpha)\n",
+        "    return w\n",
+        "\n",
+        "df = pd.read_csv('Housing.csv')\n",
+        "y = df['price'].values\n",
+        "X = df[['area', 'bedrooms', 'bathrooms']].values\n",
+        "\n",
+        "X, mu, sigma = normalize(X)\n",
+        "X = np.hstack((np.ones((X.shape[0], 1)), X))\n",
+        "X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)\n",
+        "w_initial = np.zeros(X_train.shape[1])\n",
+        "alpha = 0.01\n",
+        "num_iterations = 10000\n",
+        "w_gradient_descent = gradient_descent(X_train, y_train, w_initial, alpha, num_iterations)\n",
+        "print(\"Найкращі параметри w за допомогою градієнтного спуску:\", w_gradient_descent)\n",
+        "w_analytical_solution = np.linalg.inv(X_train.T @ X_train) @ X_train.T @ y_train\n",
+        "print(\"Найкращі параметри w за допомогою аналітичного рішення:\", w_analytical_solution)\n",
+        "print(\"Різниця між параметрами w за допомогою градієнтного спуску та аналітичного рішення:\")\n",
+        "print(w_gradient_descent - w_analytical_solution)\n"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "cI5UZ9Cgd7sy",
+        "outputId": "975a1cfb-4794-4b64-efb4-7cea7e3e92c2"
+      },
+      "execution_count": 20,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "Найкращі параметри w за допомогою градієнтного спуску: [4806638.36889117  805360.25773342  276001.78268701  704053.24496016]\n",
+            "Найкращі параметри w за допомогою аналітичного рішення: [4806638.36889121  805360.25773341  276001.782687    704053.24496017]\n",
+            "Різниця між параметрами w за допомогою градієнтного спуску та аналітичного рішення:\n",
+            "[-4.47034836e-08  5.47152013e-09  6.22821972e-09 -1.01281330e-08]\n"
+          ]
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [],
+      "metadata": {
+        "id": "cNwqzAJegIYy"
+      },
+      "execution_count": null,
+      "outputs": []
+    }
+  ]
+}
